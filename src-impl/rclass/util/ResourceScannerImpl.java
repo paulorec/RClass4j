@@ -1,31 +1,35 @@
 package rclass.util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+
+import rclass.models.LanguageEntry;
 
 public class ResourceScannerImpl extends Job {
 
-	public ResourceScannerImpl(String name) {
+	private IJavaProject root;
+
+	public ResourceScannerImpl(IJavaProject root, String name) {
 		super(name);
+		this.root = root;
 	}
 
-	private String REGEX_LANGUAGE_PATTERN = "^Language_[a-z_]*.properties.native";
-	private String R_CLASS_NAME = "RClass.java";
-	private String LINE_TOKEN = "=";
+	private String REGEX_LANGUAGE_PATTERN = "^Language_[\\w]*.properties.native";
+	private String R_CLASS_NAME = "R.java";
 
 	@Override
 	protected IStatus run(IProgressMonitor iProgressMonitor) {
@@ -34,23 +38,36 @@ public class ResourceScannerImpl extends Job {
 
 		try {
 
-			ResourceVisitorUtil resourceVisitor = new ResourceVisitorUtil(
-					Pattern.compile(REGEX_LANGUAGE_PATTERN), R_CLASS_NAME);
+			ResourceVisitorUtil resourceVisitor = new ResourceVisitorUtil(Pattern.compile(REGEX_LANGUAGE_PATTERN),
+					R_CLASS_NAME);
 
-			iProgressMonitor.subTask(STEP.SCANNING_RESOURCES.getKey());
+			root.getResource().accept(resourceVisitor);
+			
+			Map<IContainer, List<IFile>> matchedResources = resourceVisitor.getMatchedResources();
+			
+			for (Map.Entry<IContainer, List<IFile>> map : matchedResources.entrySet()) {
 
-			ResourcesPlugin.getWorkspace().getRoot().accept(resourceVisitor);
-
-			List<IFile> iFileList = resourceVisitor.getMatchedResources();
-
-			iProgressMonitor.subTask(STEP.READING_KEYS.getKey());
-
-			Set<String> setKeys = getKeys(iFileList);
-
-			iProgressMonitor.worked(STEP.READING_KEYS.getStepNumber());
-
-			ClassWriterUtil.writeClass(setKeys, file);
-
+				Set<LanguageEntry> languageEntryByContext = new HashSet<LanguageEntry>();
+				
+				IContainer iContainer = map.getKey();
+				
+				for(IFile iFile : map.getValue()) {
+					
+					List<LanguageEntry> languageEntryList = LanguageEntryProcessorUtil.getEntryLanguageEntry(iFile);
+					
+					ClassWriterUtil.writeOutPutLanguageFile(languageEntryList, createLanguageOutputFile(iFile));
+					
+					languageEntryByContext.addAll(languageEntryList);
+				}
+				
+				IPackageFragment packageFragment = root.findPackageFragment(iContainer.getFullPath());
+				
+				ClassWriterUtil.writeRClass(createRClassFile(iContainer), packageFragment, languageEntryByContext);
+			}
+			
+			
+			refreshContainers(matchedResources.keySet(), iProgressMonitor);
+			
 			return Status.OK_STATUS;
 
 		} catch (Throwable e) {
@@ -65,51 +82,28 @@ public class ResourceScannerImpl extends Job {
 		}
 	}
 
-	private Set<String> getKeys(List<IFile> iFileList) {
+	private File createRClassFile(IContainer iContainer) {
+		
+		return new File(iContainer.getLocation() + File.separator + R_CLASS_NAME);
+	}
+	
+	private File createLanguageOutputFile(IFile iFile) {
+		
+		return new File(iFile.getLocation().removeFileExtension().toString());
+	}
+	
+	private void refreshContainers(Set<IContainer> setIcontainer, IProgressMonitor iProgressMonitor) throws CoreException {
 
-		Set<String> key = new HashSet<>();
+		for (IContainer iContainer : setIcontainer) {
 
-		for (IFile iFile : iFileList) {
-
-			try {
-
-				BufferedReader fileInputStream = new BufferedReader(
-						new InputStreamReader(iFile.getContents()));
-
-				for (String line; (line = fileInputStream.readLine()) != null;) {
-
-					if (line.contains(LINE_TOKEN)) {
-
-						String prefix = line.substring(0,
-								line.indexOf(LINE_TOKEN));
-
-						if (!prefix.trim().equals("")) {
-
-							key.add(prefix);
-
-						}
-					}
-				}
-
-			} catch (CoreException e) {
-
-				System.out.println("failed to read file " + iFile.getFullPath()
-						+ File.separator + iFile.getName());
-
-			} catch (IOException e) {
-
-				System.out.println("failed to read file " + iFile.getFullPath()
-						+ File.separator + iFile.getName());
-			}
+			iContainer.refreshLocal(IContainer.DEPTH_INFINITE, iProgressMonitor);
 		}
-
-		return key;
 	}
 
 	private static enum STEP {
 		// @formatter:off
 		SCANNING_RESOURCES("scanning resources", 1), READING_KEYS(
-				"reading valid keys", 2), WRITING_FILE("writing class", 3);
+				"reading valid keys", 2), WRITING_FILE("writing file", 3);
 		// @formatter:on
 
 		private String key;

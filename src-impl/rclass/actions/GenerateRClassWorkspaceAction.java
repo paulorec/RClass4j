@@ -1,6 +1,9 @@
 package rclass.actions;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -16,14 +19,14 @@ import rclass.util.ResourceScannerImpl;
  * 
  * @see IWorkbenchWindowActionDelegate
  */
-public class GenerateRClassAction implements IWorkbenchWindowActionDelegate {
+public class GenerateRClassWorkspaceAction implements IWorkbenchWindowActionDelegate {
 
 	private IWorkbenchWindow window;
 
 	/**
 	 * The constructor.
 	 */
-	public GenerateRClassAction() {
+	public GenerateRClassWorkspaceAction() {
 	}
 
 	/**
@@ -34,9 +37,12 @@ public class GenerateRClassAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void run(IAction action) {
 
-		Job resourceScanner = new ResourceScannerImpl("Language Resource Scanner");
-
-		resourceScanner.schedule();
+		for(IProject iProject : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+			
+			Job resourceScanner = new ResourceScannerImpl(JavaCore.create(iProject), "Workspace Language Resource Scanner - " + iProject.getName());
+			
+			resourceScanner.schedule();
+		}
 
 	}
 
