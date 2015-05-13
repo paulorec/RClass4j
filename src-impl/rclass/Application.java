@@ -1,10 +1,19 @@
 package rclass;
 
+import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
+
+import rclass.util.ResourceScannerImpl;
 
 /**
  * This class controls all aspects of the application's execution
@@ -17,7 +26,6 @@ public class Application implements IApplication {
 	}
 	
 	private Object startGUI() {
-		
 		
 		Display display = PlatformUI.createDisplay();
 		try {
