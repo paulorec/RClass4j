@@ -3,7 +3,6 @@ package rclass.actions;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -14,17 +13,19 @@ import rclass.util.ResourceScannerImpl;
 
 public class GenerateRClassWorkspaceBuilder extends IncrementalBuilder {
 
+	public GenerateRClassWorkspaceBuilder() {
+		super();
+	}
 	@Override
 	public IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
-		for (IProject iProject : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+		IProject iProject = getProject();
 
-			Job resourceScanner = new ResourceScannerImpl(JavaCore.create(iProject),
-					"Workspace Language Resource Scanner - " + iProject.getName());
+		Job resourceScanner = new ResourceScannerImpl(JavaCore.create(iProject),
+				"Workspace Language Resource Scanner - " + iProject.getName());
 
-			resourceScanner.schedule();
-		}
-		
+		resourceScanner.schedule();
+
 		return null;
 	}
 
@@ -37,13 +38,12 @@ public class GenerateRClassWorkspaceBuilder extends IncrementalBuilder {
 	}
 
 	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-		
-		for (IProject iProject : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 
-			Job resourceScanner = new ResourceScannerImpl(JavaCore.create(iProject),
-					"Workspace Language Resource Scanner - " + iProject.getName());
+		IProject iProject = getProject();
 
-			resourceScanner.schedule();
-		}
+		Job resourceScanner = new ResourceScannerImpl(JavaCore.create(iProject),
+				"Workspace Language Resource Scanner - " + iProject.getName());
+
+		resourceScanner.schedule();
 	}
 }
