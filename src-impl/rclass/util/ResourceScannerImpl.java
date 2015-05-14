@@ -99,7 +99,7 @@ public class ResourceScannerImpl extends Job {
 
 	private File createLanguageOutputFile(IFile iFile) {
 
-		return new File(iFile.getLocation().removeFileExtension().toString() + OUTPUT_LANGUAGE_FILE_SUFFIX);
+		return new File(iFile.getLocation().removeFileExtension().toString() + "." + OUTPUT_LANGUAGE_FILE_SUFFIX);
 	}
 
 	private void refreshContainers(Set<IContainer> setIcontainer, IProgressMonitor iProgressMonitor)
