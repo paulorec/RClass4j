@@ -14,9 +14,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 
+import rclass.Activator;
 import rclass.models.LanguageEntry;
 
 public class ResourceScannerImpl extends Job {
@@ -28,9 +31,6 @@ public class ResourceScannerImpl extends Job {
 		this.root = root;
 	}
 
-	private String REGEX_LANGUAGE_PATTERN = "^Language_[\\w]*.properties.native";
-	private String R_CLASS_NAME = "R.java";
-
 	@Override
 	protected IStatus run(IProgressMonitor iProgressMonitor) {
 
@@ -38,36 +38,46 @@ public class ResourceScannerImpl extends Job {
 
 		try {
 
+			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+
 			ResourceVisitorUtil resourceVisitor = new ResourceVisitorUtil(Pattern.compile(REGEX_LANGUAGE_PATTERN),
 					R_CLASS_NAME);
 
 			root.getResource().accept(resourceVisitor);
-			
+
 			Map<IContainer, List<IFile>> matchedResources = resourceVisitor.getMatchedResources();
-			
+
 			for (Map.Entry<IContainer, List<IFile>> map : matchedResources.entrySet()) {
 
-				Set<LanguageEntry> languageEntryByContext = new HashSet<LanguageEntry>();
-				
 				IContainer iContainer = map.getKey();
-				
-				for(IFile iFile : map.getValue()) {
+
+				String lastCheckSum = prefs.get(iContainer.getLocation().toString(), null);
+				String currentCheckSum = ResourceUtil.getResourceCheckSum(map.getValue());
+
+				if (lastCheckSum == null || !currentCheckSum.equals(lastCheckSum)) {
+
+					Set<LanguageEntry> languageEntryByContext = new HashSet<LanguageEntry>();
+
+					for (IFile iFile : map.getValue()) {
+
+						List<LanguageEntry> languageEntryList = LanguageEntryProcessorUtil.getEntryLanguageEntry(iFile);
+
+						ClassWriterUtil.writeOutPutLanguageFile(languageEntryList, createLanguageOutputFile(iFile));
+
+						languageEntryByContext.addAll(languageEntryList);
+					}
+
+					IPackageFragment packageFragment = root.findPackageFragment(iContainer.getFullPath());
+
+					ClassWriterUtil.writeRClass(createRClassFile(iContainer), packageFragment, languageEntryByContext);
 					
-					List<LanguageEntry> languageEntryList = LanguageEntryProcessorUtil.getEntryLanguageEntry(iFile);
-					
-					ClassWriterUtil.writeOutPutLanguageFile(languageEntryList, createLanguageOutputFile(iFile));
-					
-					languageEntryByContext.addAll(languageEntryList);
+					prefs.put(iContainer.getLocation().toString(), currentCheckSum);
+
 				}
-				
-				IPackageFragment packageFragment = root.findPackageFragment(iContainer.getFullPath());
-				
-				ClassWriterUtil.writeRClass(createRClassFile(iContainer), packageFragment, languageEntryByContext);
 			}
-			
-			
+
 			refreshContainers(matchedResources.keySet(), iProgressMonitor);
-			
+
 			return Status.OK_STATUS;
 
 		} catch (Throwable e) {
@@ -83,16 +93,17 @@ public class ResourceScannerImpl extends Job {
 	}
 
 	private File createRClassFile(IContainer iContainer) {
-		
+
 		return new File(iContainer.getLocation() + File.separator + R_CLASS_NAME);
 	}
-	
+
 	private File createLanguageOutputFile(IFile iFile) {
-		
-		return new File(iFile.getLocation().removeFileExtension().toString());
+
+		return new File(iFile.getLocation().removeFileExtension().toString() + OUTPUT_LANGUAGE_FILE_SUFFIX);
 	}
-	
-	private void refreshContainers(Set<IContainer> setIcontainer, IProgressMonitor iProgressMonitor) throws CoreException {
+
+	private void refreshContainers(Set<IContainer> setIcontainer, IProgressMonitor iProgressMonitor)
+			throws CoreException {
 
 		for (IContainer iContainer : setIcontainer) {
 
@@ -122,4 +133,9 @@ public class ResourceScannerImpl extends Job {
 			return stepNumber;
 		}
 	}
+
+	private String REGEX_LANGUAGE_PATTERN = "^Language_[\\w]*.properties.native";
+	private String R_CLASS_NAME = "R.java";
+	private String OUTPUT_LANGUAGE_FILE_SUFFIX = "encoded";
+
 }

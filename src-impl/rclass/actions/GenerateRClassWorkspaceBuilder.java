@@ -3,6 +3,7 @@ package rclass.actions;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -20,7 +21,7 @@ public class GenerateRClassWorkspaceBuilder extends IncrementalBuilder {
 	public IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 
 		IProject iProject = getProject();
-
+		
 		Job resourceScanner = new ResourceScannerImpl(JavaCore.create(iProject),
 				"Workspace Language Resource Scanner - " + iProject.getName());
 
