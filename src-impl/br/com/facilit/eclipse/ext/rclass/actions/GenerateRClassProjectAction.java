@@ -1,4 +1,4 @@
-package rclass.actions;
+package br.com.facilit.eclipse.ext.rclass.actions;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -9,7 +9,7 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import rclass.util.ResourceScannerImpl;
+import br.com.facilit.eclipse.ext.rclass.util.ResourceScannerImpl;
 
 public class GenerateRClassProjectAction extends AbstractHandler {
 

@@ -1,4 +1,4 @@
-package rclass;
+package br.com.facilit.eclipse.ext.rclass;
 
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;

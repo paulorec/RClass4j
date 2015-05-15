@@ -1,4 +1,4 @@
-package rclass.util;
+package br.com.facilit.eclipse.ext.rclass.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.IPackageFragment;
 
-import rclass.models.LanguageEntry;
+import br.com.facilit.eclipse.ext.rclass.service.models.LanguageEntry;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -20,7 +20,7 @@ import freemarker.template.TemplateExceptionHandler;
 
 public class ClassWriterUtil {
 
-	private static final String TEMPLATE_FOLDER = "/rclass/content/";
+	private static final String TEMPLATE_FOLDER = "/br/com/facilit/eclipse/ext/rclass/content";
 	private static final String R_CLASS_TEMPLATE_FILE = "rclass.tpl";
 	private static final String OUTPUT_LANG_TEMPLATE_FILE = "outputlclass.tpl";
 

@@ -1,4 +1,4 @@
-package rclass;
+package br.com.facilit.eclipse.ext.rclass;
 
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;

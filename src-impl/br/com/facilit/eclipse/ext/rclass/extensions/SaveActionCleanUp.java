@@ -1,4 +1,4 @@
-package rclass.extensions;
+package br.com.facilit.eclipse.ext.rclass.extensions;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;

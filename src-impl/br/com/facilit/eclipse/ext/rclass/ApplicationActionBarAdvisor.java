@@ -1,4 +1,4 @@
-package rclass;
+package br.com.facilit.eclipse.ext.rclass;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IWorkbenchWindow;

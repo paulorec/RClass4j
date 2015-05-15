@@ -1,4 +1,4 @@
-package rclass.util;
+package br.com.facilit.eclipse.ext.rclass.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,9 +13,10 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-import rclass.models.LanguageEntry;
-import rclass.models.LanguageEntryImpl;
-import rclass.models.ParserException;
+import br.com.facilit.eclipse.ext.rclass.models.LanguageEntryImpl;
+import br.com.facilit.eclipse.ext.rclass.service.models.LanguageEntry;
+import br.com.facilit.eclipse.ext.rclass.service.models.ParserException;
+import br.com.facilit.eclipse.ext.rclass.service.util.LanguageEntryProcessor;
 
 public class LanguageEntryProcessorImpl implements LanguageEntryProcessor {
 

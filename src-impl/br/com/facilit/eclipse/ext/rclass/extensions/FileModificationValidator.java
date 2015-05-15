@@ -1,4 +1,4 @@
-package rclass.extensions;
+package br.com.facilit.eclipse.ext.rclass.extensions;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.team.FileModificationValidationContext;

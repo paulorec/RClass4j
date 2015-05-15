@@ -1,4 +1,4 @@
-package rclass;
+package br.com.facilit.eclipse.ext.rclass;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-import rclass.util.ResourceScannerImpl;
+import br.com.facilit.eclipse.ext.rclass.util.ResourceScannerImpl;
 
 /**
  * This class controls all aspects of the application's execution

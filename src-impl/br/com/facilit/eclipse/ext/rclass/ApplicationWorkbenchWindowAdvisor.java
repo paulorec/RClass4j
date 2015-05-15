@@ -1,4 +1,4 @@
-package rclass;
+package br.com.facilit.eclipse.ext.rclass;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.application.ActionBarAdvisor;

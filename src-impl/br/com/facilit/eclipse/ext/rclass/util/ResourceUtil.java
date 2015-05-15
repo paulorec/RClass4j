@@ -1,4 +1,4 @@
-package rclass.util;
+package br.com.facilit.eclipse.ext.rclass.util;
 
 import java.io.IOException;
 import java.io.InputStream;

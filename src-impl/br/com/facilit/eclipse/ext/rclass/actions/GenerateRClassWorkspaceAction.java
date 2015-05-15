@@ -1,4 +1,4 @@
-package rclass.actions;
+package br.com.facilit.eclipse.ext.rclass.actions;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import rclass.util.ResourceScannerImpl;
+import br.com.facilit.eclipse.ext.rclass.util.ResourceScannerImpl;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will

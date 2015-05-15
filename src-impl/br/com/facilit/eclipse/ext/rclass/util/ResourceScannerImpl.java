@@ -1,4 +1,4 @@
-package rclass.util;
+package br.com.facilit.eclipse.ext.rclass.util;
 
 import java.io.File;
 import java.util.HashSet;
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -18,9 +19,12 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jface.preference.IPreferenceStore;
 
-import rclass.Activator;
-import rclass.models.LanguageEntry;
+import br.com.facilit.eclipse.ext.rclass.Activator;
+import br.com.facilit.eclipse.ext.rclass.service.models.LanguageEntry;
+import br.com.facilit.eclipse.ext.rclass.service.util.LanguageEntryProcessorUtil;
+import br.com.facilit.eclipse.ext.rclass.service.util.StringPool;
 
 public class ResourceScannerImpl extends Job {
 
@@ -31,6 +35,29 @@ public class ResourceScannerImpl extends Job {
 		this.root = root;
 	}
 
+	private Pattern getLanguagePatternFileName() {
+
+		IPreferenceStore prefStore = Activator.getDefault().getPreferenceStore();
+		String pattern = prefStore.getString(StringPool.PREF_LANGUAGE_PATTERN_KEY);
+
+		if (pattern == null || pattern.equals(""))
+			pattern = StringPool.PREF_LANGUAGE_PATTERN_VALUE;
+
+		try {
+
+			return Pattern.compile(pattern);
+
+		} catch (PatternSyntaxException e) {
+
+			e.printStackTrace();
+
+			prefStore.putValue(StringPool.PREF_LANGUAGE_PATTERN_KEY, StringPool.PREF_LANGUAGE_PATTERN_VALUE);
+
+			return Pattern.compile(StringPool.PREF_LANGUAGE_PATTERN_VALUE);
+		}
+
+	}
+
 	@Override
 	protected IStatus run(IProgressMonitor iProgressMonitor) {
 
@@ -38,10 +65,9 @@ public class ResourceScannerImpl extends Job {
 
 		try {
 
-			IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			IEclipsePreferences eclipsePrefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
 
-			ResourceVisitorUtil resourceVisitor = new ResourceVisitorUtil(Pattern.compile(REGEX_LANGUAGE_PATTERN),
-					R_CLASS_NAME);
+			ResourceVisitorUtil resourceVisitor = new ResourceVisitorUtil(getLanguagePatternFileName(), R_CLASS_NAME);
 
 			root.getResource().accept(resourceVisitor);
 
@@ -51,7 +77,7 @@ public class ResourceScannerImpl extends Job {
 
 				IContainer iContainer = map.getKey();
 
-				String lastCheckSum = prefs.get(iContainer.getLocation().toString(), null);
+				String lastCheckSum = eclipsePrefs.get(iContainer.getLocation().toString(), null);
 				String currentCheckSum = ResourceUtil.getResourceCheckSum(map.getValue());
 
 				if (lastCheckSum == null || !currentCheckSum.equals(lastCheckSum)) {
@@ -70,8 +96,8 @@ public class ResourceScannerImpl extends Job {
 					IPackageFragment packageFragment = root.findPackageFragment(iContainer.getFullPath());
 
 					ClassWriterUtil.writeRClass(createRClassFile(iContainer), packageFragment, languageEntryByContext);
-					
-					prefs.put(iContainer.getLocation().toString(), currentCheckSum);
+
+					eclipsePrefs.put(iContainer.getLocation().toString(), currentCheckSum);
 
 				}
 			}
@@ -134,7 +160,6 @@ public class ResourceScannerImpl extends Job {
 		}
 	}
 
-	private String REGEX_LANGUAGE_PATTERN = "^Language_[\\w]*.properties.native";
 	private String R_CLASS_NAME = "R.java";
 	private String OUTPUT_LANGUAGE_FILE_SUFFIX = "encoded";
 

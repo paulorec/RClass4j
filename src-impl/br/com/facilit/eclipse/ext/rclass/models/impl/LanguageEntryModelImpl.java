@@ -1,9 +1,9 @@
-package rclass.models.impl;
+package br.com.facilit.eclipse.ext.rclass.models.impl;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import rclass.models.LanguageEntryModel;
+import br.com.facilit.eclipse.ext.rclass.service.models.LanguageEntryModel;
 
 public abstract class LanguageEntryModelImpl implements LanguageEntryModel {
 

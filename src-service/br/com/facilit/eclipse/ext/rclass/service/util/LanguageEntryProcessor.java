@@ -1,10 +1,10 @@
-package rclass.util;
+package br.com.facilit.eclipse.ext.rclass.service.util;
 
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 
-import rclass.models.LanguageEntry;
+import br.com.facilit.eclipse.ext.rclass.service.models.LanguageEntry;
 
 public interface LanguageEntryProcessor {
 
