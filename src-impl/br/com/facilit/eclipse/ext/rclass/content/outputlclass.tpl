@@ -6,7 +6,7 @@
 <#list languageEntryList as languageEntry>
 	<#list languageEntry.valueMap?keys as prop>
 	
-${languageEntry.encodedKey}="${languageEntry.valueMap[prop]}";
+${languageEntry.encodedKey}=${languageEntry.valueMap[prop]}
  		 
 	</#list>
 </#list>

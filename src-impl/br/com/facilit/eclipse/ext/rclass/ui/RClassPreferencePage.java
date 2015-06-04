@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -25,8 +26,11 @@ public class RClassPreferencePage extends FieldEditorPreferencePage implements I
 
 	@Override
 	public void init(IWorkbench arg0) {
-
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		
+		IPreferenceStore iPreferenceStore = Activator.getDefault().getPreferenceStore();
+		
+		setDefaultValues(iPreferenceStore);
+		setPreferenceStore(iPreferenceStore);
 
 	}
 
@@ -43,8 +47,13 @@ public class RClassPreferencePage extends FieldEditorPreferencePage implements I
 		languagePatternFieldEditor = new StringFieldEditor(StringPool.PREF_LANGUAGE_PATTERN_KEY,
 				"&Language pattern file name:", getFieldEditorParent());
 
-		languagePatternFieldEditor.setStringValue(prefs.get(StringPool.PREF_LANGUAGE_PATTERN_KEY,
-				StringPool.PREF_LANGUAGE_PATTERN_VALUE));
+		String value = prefs.get(StringPool.PREF_LANGUAGE_PATTERN_KEY,
+				StringPool.PREF_LANGUAGE_PATTERN_VALUE);
+		
+		if(value == null || value.equals(""))
+			value = StringPool.PREF_LANGUAGE_PATTERN_VALUE;
+		
+		languagePatternFieldEditor.setStringValue(value);
 
 		addField(languagePatternFieldEditor);
 	}
@@ -54,8 +63,13 @@ public class RClassPreferencePage extends FieldEditorPreferencePage implements I
 		skipDirectoryFieldEditor = new StringFieldEditor(StringPool.PREF_SKIP_DIRECTORY_KEY, "Skip directory pattern:",
 				getFieldEditorParent());
 
-		skipDirectoryFieldEditor.setStringValue(prefs.get(StringPool.PREF_SKIP_DIRECTORY_KEY,
-				StringPool.PREF_SKIP_DIRECTORY_VALUE));
+		String value = prefs.get(StringPool.PREF_SKIP_DIRECTORY_KEY,
+				StringPool.PREF_SKIP_DIRECTORY_VALUE);
+		
+		if(value == null || value.equals(""))
+			value = StringPool.PREF_SKIP_DIRECTORY_VALUE;
+		
+		skipDirectoryFieldEditor.setStringValue(value);
 
 		addField(skipDirectoryFieldEditor);
 	}
@@ -72,6 +86,12 @@ public class RClassPreferencePage extends FieldEditorPreferencePage implements I
 		initSkipDirectoryPatternField(prefs);
 	}
 
+	private void setDefaultValues(IPreferenceStore prefStore) {
+		
+		prefStore.setDefault(StringPool.PREF_SKIP_DIRECTORY_KEY, StringPool.PREF_SKIP_DIRECTORY_VALUE);
+		prefStore.setDefault(StringPool.PREF_LANGUAGE_PATTERN_KEY, StringPool.PREF_LANGUAGE_PATTERN_VALUE);
+	}
+	
 	@Override
 	public void performApply() {
 		save();
