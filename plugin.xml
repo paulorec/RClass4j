@@ -2,8 +2,11 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-   <extension
-         point="org.eclipse.ui.actionSets">
+   <extension point="org.eclipse.ui.startup">
+     <startup class="br.com.facilit.eclipse.ext.rclass.actions.StartupAction"/>
+   </extension>
+   
+   <extension point="org.eclipse.ui.actionSets">
          
       <actionSet
             label="Generate R Class"
@@ -26,13 +29,40 @@
          <action
                label="&amp;Generate RClass"
                icon="icons/sample.gif"
-               class="rclass.actions.GenerateRClassAction"
-               tooltip="Hello, Eclipse world"
+               class="br.com.facilit.eclipse.ext.rclass.actions.GenerateRClassWorkspaceAction"
+               tooltip="Generate all R classes"
                menubarPath="org.eclipse.jdt.ui.refactoring.menu/generateRClassGroup"
                toolbarPath="run"
-               id="rclass.actions.GenerateRClassAction">
+               id="br.com.facilit.eclipse.ext.rclass.actions.GenerateRClassWorkspaceAction">
          </action>
       </actionSet>
    </extension>
     
+   <extension point="org.eclipse.ui.menus">
+    <menuContribution locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
+      <command commandId="br.com.facilit.eclipse.ext.rclass.actions.GenerateRClassProjectAction"
+        label="Generate R Class" style="push">
+      </command>
+    </menuContribution>
+  </extension>
+  <extension point="org.eclipse.ui.commands">
+    <command defaultHandler="br.com.facilit.eclipse.ext.rclass.actions.GenerateRClassProjectAction"
+      id="br.com.facilit.eclipse.ext.rclass.actions.GenerateRClassProjectAction" name="Convert">
+    </command>
+  </extension>
+  
+ <extension id="rclassBuilder" name="R Class Builder" point="org.eclipse.core.resources.builders">
+     
+      <builder>
+         <run class="br.com.facilit.eclipse.ext.rclass.actions.GenerateRClassWorkspaceBuilder">
+         </run>
+      </builder>
+ </extension>
+   
+   <extension point="org.eclipse.ui.preferencePages">
+   	<page id="RClassPreferencesPage"
+ 		name="R Class"
+    		class="br.com.facilit.eclipse.ext.rclass.ui.RClassPreferencePage">
+   	</page>
+   </extension>
 </plugin>
