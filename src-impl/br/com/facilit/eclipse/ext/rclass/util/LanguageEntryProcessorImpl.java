@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -98,6 +99,8 @@ public class LanguageEntryProcessorImpl implements LanguageEntryProcessor {
 
 		rawValue = rawValue.trim();
 
+		System.out.println(rawValue + " = " + StringUtil.unicodeEscaped(rawValue));
+		
 		return StringUtil.unicodeEscaped(rawValue);
 	}
 
